@@ -1,23 +1,29 @@
-﻿#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <windows.h>
 
+
 struct Student {
     char famil[30];
     char name[30];
     char facult[30];
     int Nomzach;
+    struct Student* next;
 };
+
+int in(const char* text, const char* sub) {
+    return strstr(text, sub) != NULL;
+}
 
 int main(void)
 {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
 
-    printf("ПРОГРАММА 1\n");
+    /*printf("ПРОГРАММА 1\n");
     {
         int maxum = -10 * 100;
         int minum = 10 * 100;
@@ -87,9 +93,9 @@ int main(void)
     {
         int rows = 3, cols = 4;
         int a[3][4] = {
-            {1, 2, 3, 4},
-            {5, 6, 7, 8},
-            {9, 10, 11, 12}
+            { 1, 2, 3, 4 },
+            { 5, 6, 7, 8 },
+            { 9, 10, 11, 12 }
         };
 
         printf("Двумерный массив %dx%d:\n", rows, cols);
@@ -109,52 +115,115 @@ int main(void)
             printf("Столбец %d: %d\n", j + 1, sum);
         }
         printf("\n");
-    }
+    }*/
 
-    printf("ПРОГРАММА 5\n");
+    printf("ПРОГРАММА 5 (Подзадание 1)\n");
     {
-        struct Student stud[3];
-        char search[30];
-        int found = 0;
+        struct Student* head = NULL, * tail = NULL, * p;
+        char buf[30], q[30];
 
-        printf("ВВОД ДАННЫХ СТУДЕНТОВ\n");
+        while (1) {
+            printf("Фамилия (# - конец): ");
+            scanf("%29s", buf);
+            if (strcmp(buf, "#") == 0) break;
 
-        for (int i = 0; i < 3; i++)
-        {
-            printf("\nСтудент %d:\n", i + 1);
-            printf("Введите фамилию: ");
-            scanf("%29s", stud[i].famil);
-            printf("Введите имя: ");
-            scanf("%29s", stud[i].name);
-            printf("Введите факультет: ");
-            scanf("%29s", stud[i].facult);
-            printf("Введите номер зачётной книжки: ");
-            scanf("%d", &stud[i].Nomzach);
+            p = (struct Student*)malloc(sizeof(struct Student));
+            strcpy(p->famil, buf);
+
+            printf("Имя: ");
+            scanf("%29s", p->name);
+
+            printf("Факультет: ");
+            scanf("%29s", p->facult);
+
+            printf("Номер зачётки: ");
+            scanf("%d", &p->Nomzach);
+
+            p->next = NULL;
+
+            if (head == NULL) head = p;
+            else tail->next = p;
+            tail = p;
         }
 
-        printf("\nВведите фамилию для поиска: ");
-        scanf("%29s", search);
+        printf("\nЗапрос: ");
+        scanf("%29s", q);
 
-        printf("\nРЕЗУЛЬТАТЫ ПОИСКА\n");
-        for (int i = 0; i < 3; i++)
-        {
-            if (strcmp(stud[i].famil, search) == 0)
-            {
-                printf("\nНайден студент:\n");
-                printf("Фамилия: %s\n", stud[i].famil);
-                printf("Имя: %s\n", stud[i].name);
-                printf("Факультет: %s\n", stud[i].facult);
-                printf("Номер зачётной книжки: %d\n", stud[i].Nomzach);
+        int found = 0;
+        for (p = head; p != NULL; p = p->next) {
+            char num[20];
+            sprintf(num, "%d", p->Nomzach);
+            if (in(p->famil, q) || in(p->name, q) ||
+                in(p->facult, q) || in(num, q)) {
+                printf("\n%s %s, %s, №%d\n", p->famil, p->name, p->facult, p->Nomzach);
                 found = 1;
             }
         }
+        if (!found) printf("Не найдено.\n");
 
-        if (!found)
-        {
-            printf("Студент с фамилией '%s' не найден.\n", search);
+        while (head != NULL) {
+            p = head;
+            head = head->next;
+            free(p);
         }
-        printf("\n");
-    }
 
-    return 0;
+        return 0;
+    }
 }
+
+//    {
+//        printf("Подзадание 2\n");
+//
+//        int n;
+//        printf("Введите размер квадратного массива N: ");
+//        scanf("%d", &n);
+//
+//        if (n <= 0) {
+//            printf("Размер должен быть положительным.\n");
+//            return 0;
+//        }
+//
+//        int** a = (int**)malloc(n * sizeof(int*));
+//        if (a == NULL) {
+//            printf("Недостаточно памяти.\n");
+//            return 0;
+//        }
+//
+//        for (int i = 0; i < n; i++) {
+//            a[i] = (int*)malloc(n * sizeof(int));
+//            if (a[i] == NULL) {
+//                printf("Недостаточно памяти.\n");
+//                free(a);
+//                return 0;
+//            }
+//        }
+//
+//        srand((unsigned int)time(NULL));
+//        for (int i = 0; i < n; i++)
+//            for (int j = 0; j < n; j++)
+//                a[i][j] = -40 + rand() % 71;
+//
+//        printf("\nМассив %dx%d:\n", n, n);
+//        for (int i = 0; i < n; i++) {
+//            for (int j = 0; j < n; j++)
+//                printf("%5d ", a[i][j]);
+//            printf("\n");
+//        }
+//
+//        long long sum = 0;
+//        for (int i = 0; i < n; i++)
+//            for (int j = 0; j < n; j++)
+//                if (i + j > n - 1)
+//                    sum += a[i][j];
+//
+//        printf("\nСумма элементов под второстепенной диагональю: %lld\n", sum);
+//
+//        for (int i = 0; i < n; i++)
+//            free(a[i]);
+//        free(a);
+//
+//        return 0;
+//    }
+//
+//    return 0;
+//}
